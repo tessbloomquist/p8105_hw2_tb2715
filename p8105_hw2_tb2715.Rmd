@@ -18,5 +18,19 @@ library(readxl)
 ##Read in dataset
 ```{r}
 trash_wheel = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx")
+
+baby_name = read_csv(file = "./data/Popular_Baby_Names.csv")
+
+cpi_data = read_csv(file = "./data/fivethirtyeight_datasets/cpi.csv")
+
+gdp_data = read_csv(file = "./data/fivethirtyeight_datasets/GDP.csv")
+
+pols_data = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv")
+
+recession_data = read_csv(file = "./data/fivethirtyeight_datasets/recessions.csv")
+
+snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv")
+
+unemployment_data = read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv")
 ```
 
