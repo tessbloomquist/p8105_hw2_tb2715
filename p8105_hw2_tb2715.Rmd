@@ -1,0 +1,22 @@
+---
+title: "p8105_hw2_tb2715"
+author: "Tess"
+date: "9/24/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Load libraries
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+##Read in dataset
+```{r}
+trash_wheel = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx")
+```
+
