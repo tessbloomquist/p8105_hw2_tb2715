@@ -18,7 +18,7 @@ library(readxl)
 ##Read in dataset
 ```{r}
 
-baby_name = read_csv(file = "./data/Popular_Baby_Names.csv")
+
 
 #cpi_data = read_csv(file = "./data/fivethirtyeight_datasets/cpi.csv")
 
@@ -45,7 +45,7 @@ precipitation_18 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7
   sheet = "2018 Precipitation", 
   skip = 1,
   col_names = TRUE) %>%
-  drop_na(Total) %>%
+  drop_na(Month) %>%
   mutate(Year = "2018")
 
 
@@ -53,12 +53,14 @@ precipitation_17 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7
   sheet = "2017 Precipitation", 
   skip = 1,
   col_names = TRUE) %>%
-  drop_na(Total) %>%
+  drop_na(Month) %>%
   mutate(Year = "2017")
 
 precipitation_data = 
   full_join(precipitation_18, precipitation_17, by = "Month") %>%
-  month.abb(Month)
+  mutate(Month = sample(month.name, 12)) %>%
+  arrange(months, month.name)
+#how to use month.name
 
 
 ```
@@ -80,25 +82,21 @@ pols_data = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>
                    "09" = "September", 
                    "10" = "October", 
                    "11" = "November", 
-                   "12" = "December") %>%
-      mutate(as.numeric(as.character(prez_dem))) %>%
-  mutate(president = recode(prez_dem, "0" = "gop", "1" = "dem")))
-
-pols_data_tidy =
-      mutate(pols_data,
-             president = prez_gop - prez_dem) %>%
-  
-  mutate(president, if_else("president" = "-1", "dem", "gop"))
+                   "12" = "December")) 
+      
+#option 1 combine with mutate
+  pols_data_tidy =
+      mutate(pols_data, president = prez_gop - prez_dem) %>% 
+      president = as.logical(president) %>%
+      mutate(president, if_else(president, -1, "dem", "gop"))
         
- 
-###pols_data_tidy =
-  arrange(pols_data, prez_gop)
+#pols_data_tidy2 =
   pivot_longer(
     pols_data,
     prez_gop:prez_dem,
     names_to = "presidentparty", 
-    values_to = "president"
-  )
+    values_to = "president")
+
 snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>% 
   separate(col = date, into = c("month", "day", "year")) %>%
@@ -114,8 +112,9 @@ snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
                    "9" = "September", 
                    "10" = "October", 
                    "11" = "November", 
-                   "12" = "December") %>%
-      arrange(year, month, day, close), 1, 0)
+                   "12" = "December")) %>% 
+      select(-day) %>%
+      
 
 
 unemployment_data = read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv")
@@ -126,6 +125,32 @@ tidy_unemployment_data =
     Jan:Dec, 
     names_to = "month", 
     values_to = "unemployed")
+  
+```
+
+##Problem 3
+```{r}
+baby_name = read_csv(file = "./data/Popular_Baby_Names.csv") %>%
+  janitor::clean_names() %>%
+  distinct(childs_first_name, ethnicity, year_of_birth, count, rank, gender) 
+
+tidy_baby_name = 
+  pivot_wider(
+    baby_name,
+    names_from = "year_of_birth", 
+    values_from = "count"  
+  ) 
+
+
+tidy_baby_name
+  pivot_wider(
+    tidy_baby_name, 
+    names_from = "childs_first_name", 
+    values_from = "ethnicity"
   )
+
+olivia_baby =
+  filter(tidy_baby_name, childs_first_name == "Olivia") 
+  
 ```
 
