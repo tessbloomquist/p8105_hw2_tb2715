@@ -67,6 +67,7 @@ precipitation_data =
 
 ##Problem 2
 ```{r}
+#upload and clean pols_data
 pols_data = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>% 
   separate(col = mon, into = c("year", "month", "day")) %>%
@@ -82,21 +83,13 @@ pols_data = read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>
                    "09" = "September", 
                    "10" = "October", 
                    "11" = "November", 
-                   "12" = "December")) 
+                   "12" = "December")) %>%
+  mutate(president = recode(prez_dem, `1` = "dem", `0` = "gop"))
       
-#option 1 combine with mutate
-  pols_data_tidy =
-      mutate(pols_data, president = prez_gop - prez_dem) %>% 
-      president = as.logical(president) %>%
-      mutate(president, if_else(president, -1, "dem", "gop"))
-        
-#pols_data_tidy2 =
-  pivot_longer(
-    pols_data,
-    prez_gop:prez_dem,
-    names_to = "presidentparty", 
-    values_to = "president")
+pols_data_tidy = 
+  select(pols_data, -prez_gop, -prez_dem, -day)
 
+#upload and clean snp_data
 snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>% 
   separate(col = date, into = c("month", "day", "year")) %>%
@@ -112,12 +105,16 @@ snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
                    "9" = "September", 
                    "10" = "October", 
                    "11" = "November", 
-                   "12" = "December")) %>% 
-      select(-day) %>%
+                   "12" = "December")) 
+
+snp_data_tidy =
+  snp_data %>%
+  distinct(year, month, close)
       
-
-
-unemployment_data = read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv")
+#upload and clean unemployment_data
+unemployment_data = read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv") %>%
+  janitor::clean_names() %>%
+  mutate(#rename the month variables)
 
 tidy_unemployment_data = 
   pivot_longer(
@@ -125,6 +122,13 @@ tidy_unemployment_data =
     Jan:Dec, 
     names_to = "month", 
     values_to = "unemployed")
+
+#merge data sets
+merge1 = 
+  merge(snp_data_tidy, pols_data_tidy, by = c("year","month"))
+
+merge2 = 
+  merge(merge1, tidy_unemployment_data, by = c("year","month"))
   
 ```
 
@@ -148,9 +152,11 @@ tidy_baby_name
     names_from = "childs_first_name", 
     values_from = "ethnicity"
   )
+  
 
 olivia_baby =
-  filter(tidy_baby_name, childs_first_name == "Olivia") 
+  filter(tidy_baby_name, childs_first_name == "Olivia") %>%
+  aggregate("ethnicity", FUN= length)
   
 ```
 
