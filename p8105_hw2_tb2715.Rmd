@@ -17,9 +17,6 @@ library(readxl)
 
 ##Read in dataset
 ```{r}
-
-
-
 #cpi_data = read_csv(file = "./data/fivethirtyeight_datasets/cpi.csv")
 
 #gdp_data = read_csv(file = "./data/fivethirtyeight_datasets/GDP.csv")
@@ -30,16 +27,20 @@ library(readxl)
 
 ##Clean trash wheel data
 ```{r}
+#UPDATE WITH NEW DATASET INCLUDE 2019
 trash_wheel = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                          sheet = "Mr. Trash Wheel",
                          col_names = TRUE)
-trash_wheel
+
+trash_wheel_2019 = read_excel(path = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
+                         sheet = "Mr. Trash Wheel",
+                         col_names = TRUE)
 
 tidy_trash_wheel =
-  janitor::clean_names(trash_wheel) %>%
+  janitor::clean_names(trash_wheel_2019) %>%
   drop_na(dumpster) %>%
-  select(-x15) %>%
-  as.integer("sports_balls") #this code does not work. identify issue with dbl to integer
+  select(-x15, -x16, -x17) %>%
+  mutate(sports_balls = as.integer(sports_balls)) 
 
 precipitation_18 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
   sheet = "2018 Precipitation", 
@@ -57,12 +58,15 @@ precipitation_17 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7
   mutate(Year = "2017")
 
 precipitation_data = 
-  full_join(precipitation_18, precipitation_17, by = "Month") %>%
-  mutate(Month = sample(month.name, 12)) %>%
-  arrange(months, month.name)
-#how to use month.name
+  merge(precipitation_18, precipitation_17, by = "Month") %>%
+  mutate(Month = as.character(Month))
+#HOW TO USE MONTH.NAME
 
-
+#OR
+precipitation_data_test = 
+  bind_rows(precipitation_18, precipitation_17) %>%
+  mutate(Year = as.numeric(Year)) %>%
+  arrange(Month)
 ```
 
 ##Problem 2
@@ -108,20 +112,35 @@ snp_data = read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
                    "12" = "December")) 
 
 snp_data_tidy =
-  snp_data %>%
-  distinct(year, month, close)
+  snp_data[c("year", "month", "close")]
+
+#snp_data_tidy =
+  #snp_data %>%
+  #distinct(year, month, close) #this works because there are no duplicates but how to arrange columns otherwise?
       
 #upload and clean unemployment_data
 unemployment_data = read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv") %>%
-  janitor::clean_names() %>%
-  mutate(#rename the month variables)
+  janitor::clean_names() 
 
-tidy_unemployment_data = 
-  pivot_longer(
+tidy_unemployment_data =
+    pivot_longer(
     unemployment_data, 
-    Jan:Dec, 
+    jan:dec, 
     names_to = "month", 
-    values_to = "unemployed")
+    values_to = "unemployed") %>%
+  mutate(
+    month = recode(month, "jan" = "January", 
+                   "feb" = "February", 
+                   "mar" = "March", 
+                   "apr" = "April", 
+                   "may" = "May", 
+                   "jun" = "June", 
+                   "jul" = "July", 
+                   "aug" = "August", 
+                   "sep" = "September", 
+                   "oct" = "October", 
+                   "nov" = "November", 
+                   "dec" = "December")) 
 
 #merge data sets
 merge1 = 
@@ -132,6 +151,8 @@ merge2 =
   
 ```
 
+WRITE A PARAGRAPH
+
 ##Problem 3
 ```{r}
 baby_name = read_csv(file = "./data/Popular_Baby_Names.csv") %>%
@@ -139,24 +160,33 @@ baby_name = read_csv(file = "./data/Popular_Baby_Names.csv") %>%
   distinct(childs_first_name, ethnicity, year_of_birth, count, rank, gender) 
 
 tidy_baby_name = 
+  select(baby_name, -count) 
+
+tidy_baby_name = 
   pivot_wider(
-    baby_name,
+    tidy_baby_name,
     names_from = "year_of_birth", 
-    values_from = "count"  
-  ) 
-
-
-tidy_baby_name
-  pivot_wider(
-    tidy_baby_name, 
-    names_from = "childs_first_name", 
-    values_from = "ethnicity"
-  )
-  
+    values_from = "rank") 
 
 olivia_baby =
-  filter(tidy_baby_name, childs_first_name == "Olivia") %>%
-  aggregate("ethnicity", FUN= length)
+  filter(tidy_baby_name, childs_first_name == "Olivia") 
+
+male_baby = 
+  filter(tidy_baby_name, gender == "MALE")
+
+male_plot_df = 
+  filter(baby_name, 
+         gender == "MALE", 
+         ethnicity == "WHITE NON HISPANIC", 
+         year_of_birth == "2016")
+  
+male_plot = 
+  ggplot(male_plot_df, aes(x = count, y = rank)) +
+  geom_point()
+
+male_plot
+
   
 ```
 
+ aggregate(olivia_baby[c("2016", "2015", "2014", "2013", "2012", "2011")], by = list(olivia_baby$childs_first_name, olivia_baby$ethnicity, olivia_baby$gender), FUN = "mean", na.rm = T)
