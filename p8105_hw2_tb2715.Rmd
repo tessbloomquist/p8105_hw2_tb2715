@@ -28,11 +28,15 @@ tidy_trash_wheel =
   drop_na(dumpster) %>%
   select(-x15, -x16, -x17) %>%
   mutate(sports_balls = as.integer(sports_balls)) 
+
+tidy_trash_wheel_17 = 
+  filter(tidy_trash_wheel, year == '2017')
+
 ```
 
 #Read in precipitation data
 ```{r}
-precipitation_18 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+precipitation_18 = read_excel(path = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
   sheet = "2018 Precipitation", 
   skip = 1,
   col_names = TRUE) %>%
@@ -40,7 +44,7 @@ precipitation_18 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7
   mutate(Year = "2018")
 
 
-precipitation_17 = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+precipitation_17 = read_excel(path = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
   sheet = "2017 Precipitation", 
   skip = 1,
   col_names = TRUE) %>%
@@ -62,8 +66,21 @@ precipitation_data_test =
   arrange(Month)
 ```
 
-WRITE A PARAGRAPH HERE ABOUT DATA
+After cleaning the trashwheel data set, the tidy trashwheel data contains `r nrow(tidy_trash_wheel)` rows and `r ncol(tidy_trash_wheel)` columns. The columns consist of information collected from the site. Notably, some of these variables are :
 
+`date` = date of trash collection
+`dumpster` = specific dumpster
+`sports_balls` = the number of sports balls collected in Mr. Trashwheel on the given date rounded to the nearest integer. The median number of sports balls in the dumpster in 2017 is `r median(pull(tidy_trash_wheel_17, sports_balls))`.
+`weight_tons` = the weight of trash in tons collected by Mr. Trashwheel on the given date 
+
+After combining and cleaning the precipitation data set, it contains `r nrow(precipitation_data_test)` rows and `r ncol(precipitation_data_test)` columns.The columns are specific for:
+
+`Month`= month of precipitation measurement
+`Total` = total precipitation for a given month in specified year
+`Year` = year of precipitation measurement
+
+The total precipitation measured in 2018 is `r sum(pull(precipitation_18, Total))`
+`
 
 ###Problem 2
 
@@ -148,14 +165,27 @@ tidy_unemployment_data =
 
 #merge data sets
 ```{r}
-merge1 = 
+snp_pols_merge = 
   merge(snp_data_tidy, pols_data_tidy, by = c("year","month"))
 
-merge2 = 
-  merge(merge1, tidy_unemployment_data, by = c("year","month"))
+merge_385 = 
+  merge(snp_pols_merge, tidy_unemployment_data, by = c("year","month"))
 ```
 
-WRITE A PARAGRAPH
+The data set “pols-data” contains `r nrow(pols_data_tidy)` observations of `r ncol(pols_data_tidy)` variables related to the number of national politicians who are democratic or republican at any given time. The “snp” data contains `r nrow(snp_data_tidy)` observations of `r ncol(snp_data_tidy)` variables related to Standard & Poor’s stock market index (S&P), often used as a representative measure of stock market as a whole. The “unemployment” dataset contains `r nrow(tidy_unemployment_data)` observations of `r ncol(tidy_unemployment_data)` variables outlining the percentage of unemployment in a given month and year.
+
+The merge 385 data set, containing all of the above data merged based on date allows us to compare presidental party power with social/economic outcomes such as unemployment and stocks. The merged data contains `r nrow(merge_385)` observations of `r ncol(merge_385)`
+
+month: date of the count
+gov_gop: the number of republican governors on the associated date
+sen_gop: the number of republican senators on the associated date
+rep_gop: the number of republican representatives on the associated date
+gov_dem: the number of democratic governors on the associated date
+sen_dem: the number of democratic senators on the associated date
+rep_dem: the number of democratic representatives on the associated date
+president: indicator of whether the president was a republican or democrat 
+close: the closing values of the S&P stock index on the associated date
+unemployed= percentage of unemployment in January of the associated year
 
 ###Problem 3
 
