@@ -183,7 +183,7 @@ male_baby =
     values_from = "childs_first_name") 
 ```
 
-#create a new data frame to observe a certain population of males to use in scatterplot below
+#create a new data frame to observe a certain population of males to use in scatterplot below. 
 ```{r}
 male_plot_df = 
   filter(baby_name, 
@@ -194,7 +194,8 @@ male_plot_df =
 male_plot = 
   ggplot(male_plot_df, aes(x = rank, y = count)) +
   geom_point()
-
+ 
 male_plot
 ```
 
+#The plot above represents the number of children with a name against the rank in popularity of the name.
