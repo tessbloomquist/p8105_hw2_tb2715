@@ -16,7 +16,7 @@ library(readxl)
 library(dplyr)
 ```
 
-###Problem 1
+###Problem 1 
 
 #Load and clean trash wheel 2019 data
 ```{r}
