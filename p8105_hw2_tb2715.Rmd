@@ -74,7 +74,7 @@ After combining and cleaning the precipitation data set, it contains `r nrow(pre
 `Year` = year of precipitation measurement
 
 The total precipitation measured in 2018 is `r sum(pull(precipitation_18, Total))`
-`
+
 
 ###Problem 2
 
@@ -143,7 +143,7 @@ merge_385 =
 
 The data set “pols-data” contains `r nrow(pols_data)` observations of `r ncol(pols_data)` variables related to the number of national politicians who are democratic or republican at any given time. The “snp” data contains `r nrow(snp_data)` observations of `r ncol(snp_data)` variables related to Standard & Poor’s stock market index (S&P), often used as a representative measure of stock market as a whole. The “unemployment” dataset contains `r nrow(tidy_unemployment_data)` observations of `r ncol(tidy_unemployment_data)` variables outlining the percentage of unemployment in a given month and year.
 
-The merge 385 data set, containing all of the above data merged based on date allows us to compare presidental party power with social/economic outcomes such as unemployment and stocks. The merged data contains `r nrow(merge_385)` observations of `r ncol(merge_385)`
+The merge 385 data set, containing all of the above data merged based on date allows us to compare presidental party power with social/economic outcomes such as unemployment and stocks. The merged data contains `r nrow(merge_385)` observations of `r ncol(merge_385)` variables.
 
 month: date of the count
 gov_gop: the number of republican governors on the associated date
@@ -162,13 +162,26 @@ unemployed: percentage of unemployment in January of the associated year
 ```{r}
 baby_name = read_csv(file = "./data/Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
+    mutate(
+    childs_first_name = str_to_upper(childs_first_name), 
+    ethnicity = replace(
+  "BLACK NON HISP" = "BLACK NON HISPANIC", 
+  "WHITE NON HISP" = "WHITE NON HISPANIC", 
+  "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER")) %>%
   distinct(childs_first_name, ethnicity, year_of_birth, count, rank, gender) 
+
+
+##tidy_baby_name %>%
+  mutate(ethnicity = recode(baby_name,
+  "BLACK NON HISP" = "BLACK NON HISPANIC", 
+  "WHITE NON HISP" = "WHITE NON HISPANIC", 
+  "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER"))
 ```
 
 #filter data to only observe babies named Olivia and rank over time
 ```{r}
 olivia_baby =
-  filter(baby_name, childs_first_name == "Olivia") %>%
+  filter(baby_name, childs_first_name == "OLIVIA") %>%
     select(-count) %>%
     pivot_wider(
     names_from = "year_of_birth", 
