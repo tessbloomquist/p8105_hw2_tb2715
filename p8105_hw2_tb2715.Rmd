@@ -30,9 +30,6 @@ tidy_trash_wheel =
   select(-x15, -x16, -x17) %>%
   mutate(sports_balls = as.integer(sports_balls)) 
 
-tidy_trash_wheel_17 = 
-  filter(tidy_trash_wheel, year == '2017')
-
 ```
 
 #Read in precipitation data
@@ -141,20 +138,14 @@ merge_385 =
   left_join(snp_pols_merge, tidy_unemployment_data, by = c("year","month"))
 ```
 
-The data set “pols-data” contains `r nrow(pols_data)` observations of `r ncol(pols_data)` variables related to the number of national politicians who are democratic or republican at any given time. The “snp” data contains `r nrow(snp_data)` observations of `r ncol(snp_data)` variables related to Standard & Poor’s stock market index (S&P), often used as a representative measure of stock market as a whole. The “unemployment” dataset contains `r nrow(tidy_unemployment_data)` observations of `r ncol(tidy_unemployment_data)` variables outlining the percentage of unemployment in a given month and year.
+The data set “pols-data” contains `r nrow(pols_data)` observations of `r ncol(pols_data)` variables related to the number of national politicians who are democratic or republican over the given years. The “snp” data contains `r nrow(snp_data)` observations of `r ncol(snp_data)` variables related to Standard & Poor’s stock market index. The “unemployment” dataset contains `r nrow(tidy_unemployment_data)` observations of `r ncol(tidy_unemployment_data)` variables outlining the percentage of unemployment in a given month and year.
 
-The merge 385 data set, containing all of the above data merged based on date allows us to compare presidental party power with social/economic outcomes such as unemployment and stocks. The merged data contains `r nrow(merge_385)` observations of `r ncol(merge_385)` variables.
+The "merge 385" data set, containing all of the above data merged based on date allows us to compare presidental party power with social/economic outcomes such as unemployment and stocks. The merged data contains `r nrow(merge_385)` observations of `r ncol(merge_385)` variables. The highest rate of unemployment was under a republican president. 
 
-month: date of the count
-gov_gop: the number of republican governors on the associated date
-sen_gop: the number of republican senators on the associated date
-rep_gop: the number of republican representatives on the associated date
-gov_dem: the number of democratic governors on the associated date
-sen_dem: the number of democratic senators on the associated date
-rep_dem: the number of democratic representatives on the associated date
-president: indicator of whether the president was a republican or democrat 
-close: the closing values of the S&P stock index on the associated date
-unemployed: percentage of unemployment in January of the associated year
+`month`: date of the count
+`president`: indicator of whether the president was a republican or democrat 
+`close`: the closing values of the S&P stock index on the associated date
+`unemployed`: percentage of unemployment in January of the associated year
 
 ###Problem 3
 
@@ -163,19 +154,12 @@ unemployed: percentage of unemployment in January of the associated year
 baby_name = read_csv(file = "./data/Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
     mutate(
-    childs_first_name = str_to_upper(childs_first_name), 
-    ethnicity = replace(
+    childs_first_name = str_to_upper(childs_first_name),
+    ethnicity = recode(ethnicity,
   "BLACK NON HISP" = "BLACK NON HISPANIC", 
   "WHITE NON HISP" = "WHITE NON HISPANIC", 
   "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER")) %>%
   distinct(childs_first_name, ethnicity, year_of_birth, count, rank, gender) 
-
-
-##tidy_baby_name %>%
-  mutate(ethnicity = recode(baby_name,
-  "BLACK NON HISP" = "BLACK NON HISPANIC", 
-  "WHITE NON HISP" = "WHITE NON HISPANIC", 
-  "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER"))
 ```
 
 #filter data to only observe babies named Olivia and rank over time
@@ -185,7 +169,8 @@ olivia_baby =
     select(-count) %>%
     pivot_wider(
     names_from = "year_of_birth", 
-    values_from = "rank") 
+    values_from = "rank") %>%
+  select(-childs_first_name, -gender)
 ```
 
 #filter data to observe male children name rank over time
@@ -196,7 +181,6 @@ male_baby =
     pivot_wider(
     names_from = "year_of_birth", 
     values_from = "childs_first_name") 
-##Need to make sure ethnicities appear in the same way
 ```
 
 #create a new data frame to observe a certain population of males to use in scatterplot below
@@ -214,45 +198,3 @@ male_plot =
 male_plot
 ```
 
-#unused code
- aggregate(olivia_baby[c("2016", "2015", "2014", "2013", "2012", "2011")], by = list(olivia_baby$childs_first_name, olivia_baby$ethnicity, olivia_baby$gender), FUN = "mean", na.rm = T)
- ##Read in dataset
-
-#cpi_data = read_csv(file = "./data/fivethirtyeight_datasets/cpi.csv")
-
-#gdp_data = read_csv(file = "./data/fivethirtyeight_datasets/GDP.csv")
-
-#recession_data = read_csv(file = "./data/fivethirtyeight_datasets/recessions.csv")
-
-#UPDATE WITH NEW DATASET INCLUDE 2019
-trash_wheel = read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
-                         sheet = "Mr. Trash Wheel",
-                         col_names = TRUE)
-                         
-                         #precipitation_data = 
-  #merge(precipitation_18, precipitation_17, by = "Month") %>%
-  
-#HOW TO USE MONTH.NAME
-
-#OR
-  mutate(
-    month = recode(month, "01" = "January", 
-                   "02" = "February", 
-                   "03" = "March", 
-                   "04" = "April", 
-                   "05" = "May", 
-                   "06" = "June", 
-                   "07" = "July", 
-                   "08" = "August", 
-                   "09" = "September", 
-                   "10" = "October", 
-                   "11" = "November", 
-                   "12" = "December")) %>%
-                   
-                     select(pols_data, -prez_gop, -prez_dem, -day)
-                     
-tidy_baby_name = 
-  pivot_wider(
-    tidy_baby_name,
-    names_from = "year_of_birth", 
-    values_from = "rank") 
